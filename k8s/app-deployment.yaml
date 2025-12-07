@@ -12,17 +12,21 @@ spec:
     metadata:
       labels:
         app: identity-service
+      # 👇 BU KISIM EKLENECEK (Prometheus'a "Beni gör" diyoruz)
+      annotations:
+        prometheus.io/scrape: "true"  # Beni tara
+        prometheus.io/port: "8000"    # 8000 portundan dinle
+        prometheus.io/path: "/"       # Ana sayfaya bak
     spec:
       containers:
       - name: identity-service
-        # Docker Compose'un oluşturduğu imaj ismi
         image: online-exam-system-identity-service:latest
-        imagePullPolicy: Never  # <--- ÇOK ÖNEMLİ (Yerel imajı kullan)
+        imagePullPolicy: Never
         ports:
         - containerPort: 8000
         env:
         - name: DATABASE_URL
-          value: "postgresql://user:password@db:5432/examdb" # 'db' servisine bağlan
+          value: "postgresql://user:password@db:5432/examdb"
 ---
 apiVersion: v1
 kind: Service
@@ -51,6 +55,11 @@ spec:
     metadata:
       labels:
         app: exam-service
+      # 👇 BURAYA EKLEYECEKSİN (Labels ile aynı hizada olmalı)
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "8000"
+        prometheus.io/path: "/"
     spec:
       containers:
       - name: exam-service
@@ -89,6 +98,11 @@ spec:
     metadata:
       labels:
         app: submit-service
+      # 👇 BURAYA EKLEYECEKSİN
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "8000"
+        prometheus.io/path: "/"
     spec:
       containers:
       - name: submit-service
