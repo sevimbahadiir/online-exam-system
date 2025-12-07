@@ -1,0 +1,19 @@
+# Python derleme dosyalari
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Sanal ortam klasorleri (varsa)
+venv/
+env/
+
+# IDE ayarlari (VS Code vs)
+.vscode/
+.idea/
+
+# Docker veritabani klasorleri (yanlislikla olustuysa)
+postgres_data/
+
+# Mac/Windows sistem dosyalari
+.DS_Store
+Thumbs.db

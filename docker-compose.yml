@@ -1,0 +1,82 @@
+services:
+  # 1. Identity Servisi
+  identity-service:
+    build: ./identity-service
+    container_name: identity_container
+    ports:
+      - "8000:8000"
+    networks:
+      - exam-network
+    depends_on:
+      - db
+    environment:
+      - DATABASE_URL=postgresql://user:password@db:5432/examdb
+
+  # 2. Exam Servisi
+  exam-service:
+    build: ./exam-service
+    container_name: exam_container
+    ports:
+      - "8001:8000"
+    networks:
+      - exam-network
+    depends_on:
+      - db
+    environment:
+      - DATABASE_URL=postgresql://user:password@db:5432/examdb
+
+  # 3. Veritabanı
+  db:
+    image: postgres:15
+    container_name: postgres_db
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: examdb
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - exam-network
+
+  # 4. YENİ: RabbitMQ (Mesaj Kuyruğu) 🐰
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: rabbitmq_server
+    ports:
+      - "5672:5672"   # Servislerin konuşacağı port
+      - "15672:15672" # Senin tarayıcıdan göreceğin panel
+    networks:
+      - exam-network
+
+
+  # 5. YENİ: Submit Service (Producer)
+  submit-service:
+    build: ./submit-service
+    container_name: submit_container
+    ports:
+      - "8002:8000"
+    networks:
+      - exam-network
+    depends_on:
+      - rabbitmq
+    # RabbitMQ hemen acilmayabilir, bu kod servisin çökmesini engeller, tekrar dener
+    restart: always
+
+    # 6. YENİ: Grading Service (Consumer / Worker)
+  grading-service:
+    build: ./grading-service
+    container_name: grading_worker
+    networks:
+      - exam-network
+    depends_on:
+      - rabbitmq
+    restart: always  # RabbitMQ hazır değilse çökmesin, tekrar denesin
+
+networks:
+  exam-network:
+    driver: bridge
+
+volumes:
+  postgres_data:
