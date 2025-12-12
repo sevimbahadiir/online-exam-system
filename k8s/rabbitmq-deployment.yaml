@@ -24,6 +24,7 @@ kind: Service
 metadata:
   name: rabbitmq  # Python kodumuz 'rabbitmq' adresini arıyor, bu isim ÖNEMLİ
 spec:
+  type: LoadBalancer
   selector:
     app: rabbitmq
   ports:
@@ -33,5 +34,5 @@ spec:
       targetPort: 5672
     - name: management
       protocol: TCP
-      port: 15672
+      port: 15672 #yönetim paneli
       targetPort: 15672
