@@ -1,0 +1,88 @@
+{
+  "annotations": {
+    "list": []
+  },
+  "description": "Dashboard for Online Exam System services monitoring",
+  "panels": [
+    {
+      "type": "graph",
+      "title": "Identity Service CPU Usage",
+      "datasource": {
+        "uid": "monitoring-stack-kube-prom-prometheus"
+      },
+      "targets": [
+        {
+          "expr": "sum(rate(container_cpu_usage_seconds_total{namespace=\"online-exam\",pod=~\"identity-service.*\"}[1m]))",
+          "legendFormat": "{{pod}}"
+        }
+      ]
+    },
+    {
+      "type": "graph",
+      "title": "Exam Service CPU Usage",
+      "datasource": {
+        "uid": "monitoring-stack-kube-prom-prometheus"
+      },
+      "targets": [
+        {
+          "expr": "sum(rate(container_cpu_usage_seconds_total{namespace=\"online-exam\",pod=~\"exam-service.*\"}[1m]))",
+          "legendFormat": "{{pod}}"
+        }
+      ]
+    },
+    {
+      "type": "graph",
+      "title": "Submit Service CPU Usage",
+      "datasource": {
+        "uid": "monitoring-stack-kube-prom-prometheus"
+      },
+      "targets": [
+        {
+          "expr": "sum(rate(container_cpu_usage_seconds_total{namespace=\"online-exam\",pod=~\"submit-service.*\"}[1m]))",
+          "legendFormat": "{{pod}}"
+        }
+      ]
+    },
+    {
+      "type": "graph",
+      "title": "Grading Service CPU Usage",
+      "datasource": {
+        "uid": "monitoring-stack-kube-prom-prometheus"
+      },
+      "targets": [
+        {
+          "expr": "sum(rate(container_cpu_usage_seconds_total{namespace=\"online-exam\",pod=~\"grading-service.*\"}[1m]))",
+          "legendFormat": "{{pod}}"
+        }
+      ]
+    },
+    {
+      "type": "table",
+      "title": "Pod Status",
+      "datasource": {
+        "uid": "monitoring-stack-kube-prom-prometheus"
+      },
+      "targets": [
+        {
+          "expr": "kube_pod_status_phase{namespace=\"online-exam\"}"
+        }
+      ]
+    },
+    {
+      "type": "graph",
+      "title": "RabbitMQ Queue Messages",
+      "datasource": {
+        "uid": "monitoring-stack-kube-prom-prometheus"
+      },
+      "targets": [
+        {
+          "expr": "rabbitmq_queue_messages{namespace=\"online-exam\"}",
+          "legendFormat": "{{queue}}"
+        }
+      ]
+    }
+  ],
+  "schemaVersion": 30,
+  "title": "Online Exam System Monitoring",
+  "version": 1
+}
