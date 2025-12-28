@@ -1,88 +1,57 @@
 {
-  "annotations": {
-    "list": []
-  },
-  "description": "Dashboard for Online Exam System services monitoring",
-  "panels": [
-    {
-      "type": "graph",
-      "title": "Identity Service CPU Usage",
-      "datasource": {
-        "uid": "monitoring-stack-kube-prom-prometheus"
-      },
-      "targets": [
-        {
-          "expr": "sum(rate(container_cpu_usage_seconds_total{namespace=\"online-exam\",pod=~\"identity-service.*\"}[1m]))",
-          "legendFormat": "{{pod}}"
+  "dashboard": {
+    "id": null,
+    "uid": "online-exam-dashboard",
+    "title": "Online Exam System Monitoring",
+    "timezone": "browser",
+    "panels": [
+      {
+        "type": "stat",
+        "title": "Pod Status",
+        "gridPos": {"x":0,"y":0,"w":12,"h":6},
+        "datasource": "Prometheus",
+        "targets": [
+          {
+            "expr": "up{namespace=\"online-exam\"}",
+            "legendFormat": "{{pod}}",
+            "refId": "A"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "none",
+            "color": {"mode":"thresholds"}
+          }
         }
-      ]
-    },
-    {
-      "type": "graph",
-      "title": "Exam Service CPU Usage",
-      "datasource": {
-        "uid": "monitoring-stack-kube-prom-prometheus"
       },
-      "targets": [
-        {
-          "expr": "sum(rate(container_cpu_usage_seconds_total{namespace=\"online-exam\",pod=~\"exam-service.*\"}[1m]))",
-          "legendFormat": "{{pod}}"
-        }
-      ]
-    },
-    {
-      "type": "graph",
-      "title": "Submit Service CPU Usage",
-      "datasource": {
-        "uid": "monitoring-stack-kube-prom-prometheus"
+      {
+        "type": "graph",
+        "title": "CPU Usage",
+        "gridPos": {"x":0,"y":6,"w":12,"h":6},
+        "datasource": "Prometheus",
+        "targets": [
+          {
+            "expr": "sum(rate(container_cpu_usage_seconds_total{namespace=\"online-exam\",container!=\"\"}[1m])) by (pod)",
+            "legendFormat": "{{pod}}",
+            "refId": "B"
+          }
+        ]
       },
-      "targets": [
-        {
-          "expr": "sum(rate(container_cpu_usage_seconds_total{namespace=\"online-exam\",pod=~\"submit-service.*\"}[1m]))",
-          "legendFormat": "{{pod}}"
-        }
-      ]
-    },
-    {
-      "type": "graph",
-      "title": "Grading Service CPU Usage",
-      "datasource": {
-        "uid": "monitoring-stack-kube-prom-prometheus"
-      },
-      "targets": [
-        {
-          "expr": "sum(rate(container_cpu_usage_seconds_total{namespace=\"online-exam\",pod=~\"grading-service.*\"}[1m]))",
-          "legendFormat": "{{pod}}"
-        }
-      ]
-    },
-    {
-      "type": "table",
-      "title": "Pod Status",
-      "datasource": {
-        "uid": "monitoring-stack-kube-prom-prometheus"
-      },
-      "targets": [
-        {
-          "expr": "kube_pod_status_phase{namespace=\"online-exam\"}"
-        }
-      ]
-    },
-    {
-      "type": "graph",
-      "title": "RabbitMQ Queue Messages",
-      "datasource": {
-        "uid": "monitoring-stack-kube-prom-prometheus"
-      },
-      "targets": [
-        {
-          "expr": "rabbitmq_queue_messages{namespace=\"online-exam\"}",
-          "legendFormat": "{{queue}}"
-        }
-      ]
-    }
-  ],
-  "schemaVersion": 30,
-  "title": "Online Exam System Monitoring",
-  "version": 1
+      {
+        "type": "graph",
+        "title": "Memory Usage",
+        "gridPos": {"x":0,"y":12,"w":12,"h":6},
+        "datasource": "Prometheus",
+        "targets": [
+          {
+            "expr": "sum(container_memory_usage_bytes{namespace=\"online-exam\",container!=\"\"}) by (pod)",
+            "legendFormat": "{{pod}}",
+            "refId": "C"
+          }
+        ]
+      }
+    ],
+    "schemaVersion": 36,
+    "version": 1
+  }
 }
