@@ -12,11 +12,10 @@ kind: Namespace
 metadata:
   name: monitoring
 
+---
 # -----------------------------
-# Online Exam Services
-# -----------------------------
-
 # PostgreSQL
+# -----------------------------
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -65,7 +64,10 @@ spec:
   - port: 5432
     targetPort: 5432
 
+---
+# -----------------------------
 # RabbitMQ
+# -----------------------------
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -106,7 +108,10 @@ spec:
     port: 15672
     targetPort: 15672
 
+---
+# -----------------------------
 # Identity Service
+# -----------------------------
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -146,7 +151,10 @@ spec:
   - port: 8000
     targetPort: 8000
 
+---
+# -----------------------------
 # Exam Service
+# -----------------------------
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -186,7 +194,10 @@ spec:
   - port: 8000
     targetPort: 8000
 
+---
+# -----------------------------
 # Submit Service
+# -----------------------------
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -206,12 +217,10 @@ spec:
       - name: submit-service
         image: sevimbahadiroglu/submit-service:latest
         ports:
-        - containerPort: 8002
+        - containerPort: 8000
         env:
-        - name: DATABASE_URL
-          value: "postgresql://examuser:exampass@postgres:5432/examdb"
-        - name: RABBITMQ_URL
-          value: "amqp://guest:guest@rabbitmq:5672/"
+        - name: RABBITMQ_HOST
+          value: "rabbitmq"
         imagePullPolicy: IfNotPresent
 
 ---
@@ -226,9 +235,12 @@ spec:
     app: submit-service
   ports:
   - port: 8002
-    targetPort: 8002
+    targetPort: 8000
 
+---
+# -----------------------------
 # Grading Service
+# -----------------------------
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -247,133 +259,8 @@ spec:
       containers:
       - name: grading-service
         image: sevimbahadiroglu/grading-service:latest
-        ports:
-        - containerPort: 8003
         env:
-        - name: DATABASE_URL
-          value: "postgresql://examuser:exampass@postgres:5432/examdb"
-        - name: RABBITMQ_URL
-          value: "amqp://guest:guest@rabbitmq:5672/"
+        - name: RABBITMQ_HOST
+          value: "rabbitmq"
         imagePullPolicy: IfNotPresent
-
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: grading-service
-  namespace: online-exam
-spec:
-  type: ClusterIP
-  selector:
-    app: grading-service
-  ports:
-  - port: 8003
-    targetPort: 8003
-
-# -----------------------------
-# Monitoring Stack (Prometheus + Grafana)
-# -----------------------------
-
-# Prometheus ConfigMap
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: prometheus-config
-  namespace: monitoring
-data:
-  prometheus.yml: |
-    global:
-      scrape_interval: 15s
-    scrape_configs:
-      - job_name: 'kubernetes-pods'
-        kubernetes_sd_configs:
-          - role: pod
-        relabel_configs:
-          - source_labels: [__meta_kubernetes_namespace]
-            action: keep
-            regex: online-exam
-
-
----
-# Prometheus Deployment
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: prometheus
-  namespace: monitoring
-spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      app: prometheus
-  template:
-    metadata:
-      labels:
-        app: prometheus
-    spec:
-      containers:
-      - name: prometheus
-        image: prom/prometheus:latest
-        args:
-        - "--config.file=/etc/prometheus/prometheus.yml"
-        ports:
-        - containerPort: 9090
-        volumeMounts:
-        - name: prometheus-config
-          mountPath: /etc/prometheus
-      volumes:
-      - name: prometheus-config
-        configMap:
-          name: prometheus-config
-
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: prometheus
-  namespace: monitoring
-spec:
-  type: ClusterIP
-  selector:
-    app: prometheus
-  ports:
-  - port: 9090
-    targetPort: 9090
-
-# Grafana Deployment
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: grafana
-  namespace: monitoring
-spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      app: grafana
-  template:
-    metadata:
-      labels:
-        app: grafana
-    spec:
-      containers:
-      - name: grafana
-        image: grafana/grafana:latest
-        ports:
-        - containerPort: 3000
-
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: grafana
-  namespace: monitoring
-spec:
-  type: ClusterIP
-  selector:
-    app: grafana
-  ports:
-  - port: 3000
-    targetPort: 3000
-
 

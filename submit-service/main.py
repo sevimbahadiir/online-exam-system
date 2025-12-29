@@ -1,9 +1,13 @@
 from fastapi import FastAPI
 from pydantic import BaseModel
+from prometheus_fastapi_instrumentator import Instrumentator
 import pika
 import json
 
 app = FastAPI()
+
+# Prometheus Metrics
+Instrumentator().instrument(app).expose(app)
 
 # Gelen Cevap Modeli
 class Submission(BaseModel):

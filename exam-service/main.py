@@ -1,6 +1,7 @@
 import os
 from fastapi import FastAPI, Depends
 from pydantic import BaseModel
+from prometheus_fastapi_instrumentator import Instrumentator
 from sqlalchemy import create_engine, Column, Integer, String
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, Session
@@ -25,6 +26,9 @@ Base.metadata.create_all(bind=engine)
 
 # 3. UYGULAMA VE MODELLER
 app = FastAPI()
+
+# Prometheus Metrics
+Instrumentator().instrument(app).expose(app)
 
 # Pydantic Modeli (Veri alışverişi için)
 class ExamCreate(BaseModel):

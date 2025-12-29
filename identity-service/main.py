@@ -1,6 +1,7 @@
 import os
 from fastapi import FastAPI, HTTPException, Depends
 from pydantic import BaseModel
+from prometheus_fastapi_instrumentator import Instrumentator
 from sqlalchemy import create_engine, Column, Integer, String
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, Session
@@ -27,6 +28,9 @@ Base.metadata.create_all(bind=engine)
 
 # 3. FASTAPI UYGULAMASI
 app = FastAPI()
+
+# Prometheus Metrics
+Instrumentator().instrument(app).expose(app)
 
 # Veritabanı oturumu açıp kapatan yardımcı fonksiyon
 def get_db():
